@@ -216,15 +216,6 @@ const PagoForm = () => {
     if (!validarFormulario()) {
       return;
     }
-
-    if (name === 'numeroDocumento') {
-      const cleaned = value.replace(/\D/g, '').slice(0, 20);
-      setFormData({
-        ...formData,
-        [name]: cleaned
-      });
-      return;
-    }
   
     setLoading(true);
     setError('');
@@ -235,26 +226,33 @@ const PagoForm = () => {
         amountInCents: calcularTotal() * 100,
         reference: `ORDER-${Date.now()}`,
         publicKey: 'pub_test_X0zDA9xoKdePzhd8a0x9HAez7HgGO9WJ',
+        // Asegúrate que esta URL coincida con tu dominio en Netlify
         redirectUrl: 'https://wompi-store.netlify.app/resumen',
+        
+        // Impuestos
         taxInCents: {
-          vat: 1000 * 100,
-          consumption: 5000 * 100
+          vat: 1000 * 100, // IVA
+          consumption: 5000 * 100 // Impuesto al consumo
         },
+  
+        // Información de envío
+        shippingAddress: {
+          addressLine1: formData.direccionEntrega,
+          country: 'CO',
+          city: formData.ciudad,
+          phoneNumber: formData.telefono.replace(/\D/g, ''),
+          region: formData.ciudad,
+          postalCode: formData.codigoPostal
+        },
+  
+        // Información del cliente
         customerData: {
           email: formData.email,
           fullName: formData.nombreTitular,
           phoneNumber: formData.telefono.replace(/\D/g, ''),
-          phoneNumberPrefix: "+57",
+          phoneNumberPrefix: '+57',
           legalId: formData.numeroDocumento,
-          legalIdType: formData.tipoDocumento
-        },
-        shippingAddress: {
-          addressLine1: formData.direccionEntrega,
-          city: formData.ciudad,
-          phoneNumber: formData.telefono.replace(/\D/g, ''),
-          region: formData.ciudad,
-          country: "CO",
-          postalCode: formData.codigoPostal
+          legalIdType: formData.tipoDocumento || 'CC'
         }
       });
   
