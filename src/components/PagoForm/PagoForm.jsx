@@ -221,37 +221,40 @@ const PagoForm = () => {
     setError('');
   
     try {
+      // Asegurarse que el widget está disponible
+      if (!window.WidgetCheckout) {
+        throw new Error('El widget de Wompi no está disponible');
+      }
+  
       const checkout = new window.WidgetCheckout({
         currency: 'COP',
         amountInCents: calcularTotal() * 100,
         reference: `ORDER-${Date.now()}`,
         publicKey: 'pub_test_X0zDA9xoKdePzhd8a0x9HAez7HgGO9WJ',
-        // Asegúrate que esta URL coincida con tu dominio en Netlify
         redirectUrl: 'https://wompi-store.netlify.app/resumen',
         
-        // Impuestos
         taxInCents: {
-          vat: 1000 * 100, // IVA
-          consumption: 5000 * 100 // Impuesto al consumo
+          vat: 1000 * 100,
+          consumption: 5000 * 100
         },
   
-        // Información de envío
+        // Información de envío sin campos vacíos
         shippingAddress: {
-          addressLine1: formData.direccionEntrega,
+          addressLine1: formData.direccionEntrega || 'No especificada',
           country: 'CO',
-          city: formData.ciudad,
-          phoneNumber: formData.telefono.replace(/\D/g, ''),
-          region: formData.ciudad,
-          postalCode: formData.codigoPostal
+          city: formData.ciudad || 'No especificada',
+          phoneNumber: formData.telefono?.replace(/\D/g, '') || '0000000000',
+          region: formData.ciudad || 'No especificada',
+          postalCode: formData.codigoPostal || '000000'
         },
   
-        // Información del cliente
+        // Información del cliente sin campos vacíos
         customerData: {
-          email: formData.email,
-          fullName: formData.nombreTitular,
-          phoneNumber: formData.telefono.replace(/\D/g, ''),
+          email: formData.email || 'no-email@example.com',
+          fullName: formData.nombreTitular || 'No especificado',
+          phoneNumber: formData.telefono?.replace(/\D/g, '') || '0000000000',
           phoneNumberPrefix: '+57',
-          legalId: formData.numeroDocumento,
+          legalId: formData.numeroDocumento || '0000000000',
           legalIdType: formData.tipoDocumento || 'CC'
         }
       });
