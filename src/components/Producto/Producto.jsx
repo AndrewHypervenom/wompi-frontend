@@ -18,7 +18,7 @@ const Producto = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/productos')
+    fetch('https://wompi-backend-k7g6.onrender.com/api/productos')
       .then(response => response.json())
       .then(data => {
         setProductos(data);
