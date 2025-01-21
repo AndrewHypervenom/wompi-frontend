@@ -234,8 +234,8 @@ const PagoForm = () => {
         currency: 'COP',
         amountInCents: calcularTotal() * 100,
         reference: `ORDER-${Date.now()}`,
-        publicKey: 'pub_test_X0zDA9xoKdePzhd8a0x9HAez7HgGO9WJ', // Usa directamente la llave
-        redirectUrl: `https://main.d15ft221g340bk.amplifyapp.com/resumen`,
+        publicKey: 'pub_test_X0zDA9xoKdePzhd8a0x9HAez7HgGO9WJ',
+        redirectUrl: 'https://wompi-store.netlify.app/resumen',
         taxInCents: {
           vat: 1000 * 100,
           consumption: 5000 * 100
@@ -251,7 +251,7 @@ const PagoForm = () => {
         shippingAddress: {
           addressLine1: formData.direccionEntrega,
           city: formData.ciudad,
-          phoneNumber: formData.telefono,
+          phoneNumber: formData.telefono.replace(/\D/g, ''),
           region: formData.ciudad,
           country: "CO",
           postalCode: formData.codigoPostal
