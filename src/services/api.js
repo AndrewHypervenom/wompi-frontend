@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
+  // Agregamos un comentario para forzar un cambio
   baseURL: 'https://wompi-backend-k7g6.onrender.com/api',
   headers: {
     'Content-Type': 'application/json'
