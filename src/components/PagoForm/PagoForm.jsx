@@ -221,38 +221,52 @@ const PagoForm = () => {
     setError('');
   
     try {
-      // Generar un ID único para la transacción
-      const referenceId = `ORDER-${Date.now()}-${Math.random().toString(36).substring(7)}`;
-      
-      // Construir la URL del checkout directamente
-      const wompiUrl = 'https://checkout.wompi.co/p/';
-      const checkoutUrl = new URL(wompiUrl);
-      
-      // Agregar parámetros base
-      checkoutUrl.searchParams.append('public-key', 'pub_stagtest_g2u0HQd3ZMh05hsSgTS2lUV8t3s4mOt7');
-      checkoutUrl.searchParams.append('currency', 'COP');
-      checkoutUrl.searchParams.append('amount-in-cents', calcularTotal() * 100);
-      checkoutUrl.searchParams.append('reference', referenceId);
-      checkoutUrl.searchParams.append('redirect-url', 'https://wompi-store.netlify.app/resumen');
-      
-      // Agregar datos del cliente
-      checkoutUrl.searchParams.append('customer-data:email', formData.email);
-      checkoutUrl.searchParams.append('customer-data:full-name', formData.nombreTitular);
-      checkoutUrl.searchParams.append('customer-data:phone-number', formData.telefono?.replace(/\D/g, ''));
-      checkoutUrl.searchParams.append('customer-data:phone-number-prefix', '+57');
-      checkoutUrl.searchParams.append('customer-data:legal-id', formData.numeroDocumento);
-      checkoutUrl.searchParams.append('customer-data:legal-id-type', formData.tipoDocumento);
-      
-      // Agregar datos de envío
-      checkoutUrl.searchParams.append('shipping-address:address-line-1', formData.direccionEntrega);
-      checkoutUrl.searchParams.append('shipping-address:city', formData.ciudad);
-      checkoutUrl.searchParams.append('shipping-address:country', 'CO');
-      checkoutUrl.searchParams.append('shipping-address:phone-number', formData.telefono?.replace(/\D/g, ''));
-      checkoutUrl.searchParams.append('shipping-address:region', formData.ciudad);
-      checkoutUrl.searchParams.append('shipping-address:postal-code', formData.codigoPostal);
+      // Crear el formulario HTML
+      const form = document.createElement('form');
+      form.method = 'GET';
+      form.action = 'https://checkout.wompi.co/p/';
   
-      // Redireccionar al checkout
-      window.location.href = checkoutUrl.toString();
+      // Datos básicos
+      const fields = {
+        'mode': 'redirect',
+        'public-key': 'pub_stagtest_g2u0HQd3ZMh05hsSgTS2lUV8t3s4mOt7',
+        'currency': 'COP',
+        'amount-in-cents': calcularTotal() * 100,
+        'reference': `ORDER-${Date.now()}-${Math.random().toString(36).substring(7)}`,
+        'redirect-url': 'https://wompi-store.netlify.app/resumen'
+      };
+  
+      // Datos del cliente
+      fields['customer-data:email'] = formData.email;
+      fields['customer-data:full-name'] = formData.nombreTitular;
+      fields['customer-data:phone-number'] = formData.telefono?.replace(/\D/g, '');
+      fields['customer-data:phone-number-prefix'] = '+57';
+      fields['customer-data:legal-id'] = formData.numeroDocumento;
+      fields['customer-data:legal-id-type'] = formData.tipoDocumento;
+  
+      // Datos de envío
+      fields['shipping-address:address-line-1'] = formData.direccionEntrega;
+      fields['shipping-address:city'] = formData.ciudad;
+      fields['shipping-address:country'] = 'CO';
+      fields['shipping-address:phone-number'] = formData.telefono?.replace(/\D/g, '');
+      fields['shipping-address:region'] = formData.ciudad;
+      fields['shipping-address:postal-code'] = formData.codigoPostal;
+  
+      // Crear campos ocultos
+      Object.entries(fields).forEach(([key, value]) => {
+        if (value) {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = key;
+          input.value = value;
+          form.appendChild(input);
+        }
+      });
+  
+      // Agregar form al documento y enviarlo
+      document.body.appendChild(form);
+      form.submit();
+      document.body.removeChild(form);
   
     } catch (error) {
       console.error('Error al iniciar el pago:', error);
