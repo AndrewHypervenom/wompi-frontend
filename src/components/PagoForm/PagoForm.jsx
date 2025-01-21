@@ -221,59 +221,51 @@ const PagoForm = () => {
     setError('');
   
     try {
-      // Asegurarse que el widget está disponible
-      if (!window.WidgetCheckout) {
-        throw new Error('El widget de Wompi no está disponible');
-      }
+      // Crear el formulario para redirección
+      const form = document.createElement('form');
+      form.method = 'GET';
+      form.action = 'https://checkout.wompi.co/p/';
   
-      console.log('Public Key:', import.meta.env.VITE_WOMPI_PUBLIC_KEY);
+      // Configurar los campos necesarios
+      const params = {
+        'public-key': 'pub_stagtest_g2u0HQd3ZMh05hsSgTS2lUV8t3s4mOt7',
+        'currency': 'COP',
+        'amount-in-cents': calcularTotal() * 100,
+        'reference': `ORDER-${Date.now()}`,
+        'redirect-url': 'https://wompi-store.netlify.app/resumen',
+        
+        // Datos del cliente
+        'customer-data:email': formData.email,
+        'customer-data:full-name': formData.nombreTitular,
+        'customer-data:phone-number': formData.telefono,
+        'customer-data:phone-number-prefix': '+57',
+        'customer-data:legal-id': formData.numeroDocumento,
+        'customer-data:legal-id-type': formData.tipoDocumento,
   
-      const checkout = new window.WidgetCheckout({
-        currency: 'COP',
-        amountInCents: calcularTotal() * 100,
-        reference: `ORDER-${Date.now()}`,
-        publicKey: 'pub_stagtest_g2u0HQd3ZMh05hsSgTS2lUV8t3s4mOt7',
-        redirectUrl: 'https://wompi-store.netlify.app/resumen',
-        customerData: {
-          email: formData.email,
-          fullName: formData.nombreTitular,
-          phoneNumber: formData.telefono,
-          phoneNumberPrefix: '+57',
-          legalId: formData.numeroDocumento,
-          legalIdType: formData.tipoDocumento
-        }
+        // Información de envío
+        'shipping-address:address-line-1': formData.direccionEntrega,
+        'shipping-address:city': formData.ciudad,
+        'shipping-address:country': 'CO',
+        'shipping-address:phone-number': formData.telefono,
+        'shipping-address:region': formData.ciudad,
+        'shipping-address:postal-code': formData.codigoPostal
+      };
+  
+      // Agregar los campos al formulario
+      Object.entries(params).forEach(([key, value]) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = value || '';
+        form.appendChild(input);
       });
   
-      checkout.open((result) => {
-        if (result && result.transaction && result.transaction.id) {
-          if (result.transaction.status === 'APPROVED') {
-            createTransaction({
-              productoId: producto._id,
-              wompiId: result.transaction.id,
-              monto: calcularTotal(),
-              telefono: formData.telefono,
-              direccionEntrega: formData.direccionEntrega,
-              ciudad: formData.ciudad,
-              codigoPostal: formData.codigoPostal
-            })
-            .then(response => {
-              dispatch(setTransaccion(response.transaction));
-              navigate('/resumen');
-            })
-            .catch(error => {
-              setError('Error al registrar la transacción');
-              console.error(error);
-            });
-          } else {
-            setError(`La transacción fue ${result.transaction.status}`);
-          }
-        } else {
-          setError('Error al procesar el pago');
-        }
-        setLoading(false);
-      });
+      // Agregar el formulario al documento y enviarlo
+      document.body.appendChild(form);
+      form.submit();
+  
     } catch (error) {
-      console.error('Error al inicializar el widget:', error);
+      console.error('Error al iniciar el pago:', error);
       setError('Error al inicializar el pago. Por favor, intente nuevamente.');
       setLoading(false);
     }
