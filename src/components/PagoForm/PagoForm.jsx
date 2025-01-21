@@ -226,37 +226,21 @@ const PagoForm = () => {
         throw new Error('El widget de Wompi no está disponible');
       }
   
+      console.log('Public Key:', import.meta.env.VITE_WOMPI_PUBLIC_KEY);
+  
       const checkout = new window.WidgetCheckout({
         currency: 'COP',
         amountInCents: calcularTotal() * 100,
         reference: `ORDER-${Date.now()}`,
-        publicKey: import.meta.env.VITE_WOMPI_PUBLIC_KEY,
+        publicKey: 'pub_stagtest_g2u0HQd3ZMh05hsSgTS2lUV8t3s4mOt7',
         redirectUrl: 'https://wompi-store.netlify.app/resumen',
-        sandboxMode: true,
-        
-        taxInCents: {
-          vat: 1000 * 100,
-          consumption: 5000 * 100
-        },
-  
-        // Información de envío sin campos vacíos
-        shippingAddress: {
-          addressLine1: formData.direccionEntrega || 'No especificada',
-          country: 'CO',
-          city: formData.ciudad || 'No especificada',
-          phoneNumber: formData.telefono?.replace(/\D/g, '') || '0000000000',
-          region: formData.ciudad || 'No especificada',
-          postalCode: formData.codigoPostal || '000000'
-        },
-  
-        // Información del cliente sin campos vacíos
         customerData: {
-          email: formData.email || 'no-email@example.com',
-          fullName: formData.nombreTitular || 'No especificado',
-          phoneNumber: formData.telefono?.replace(/\D/g, '') || '0000000000',
+          email: formData.email,
+          fullName: formData.nombreTitular,
+          phoneNumber: formData.telefono,
           phoneNumberPrefix: '+57',
-          legalId: formData.numeroDocumento || '0000000000',
-          legalIdType: formData.tipoDocumento || 'CC'
+          legalId: formData.numeroDocumento,
+          legalIdType: formData.tipoDocumento
         }
       });
   
