@@ -1,5 +1,3 @@
-// frontend/src/components/PagoForm/PagoForm.jsx
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
@@ -22,6 +20,8 @@ const PagoForm = () => {
     fechaExpiracion: '',
     cvv: '',
     nombreTitular: '',
+    tipoDocumento: 'CC',
+    numeroDocumento: '',
     email: '',
     telefono: '',
     direccionEntrega: '',
@@ -216,6 +216,15 @@ const PagoForm = () => {
     if (!validarFormulario()) {
       return;
     }
+
+    if (name === 'numeroDocumento') {
+      const cleaned = value.replace(/\D/g, '').slice(0, 20);
+      setFormData({
+        ...formData,
+        [name]: cleaned
+      });
+      return;
+    }
   
     setLoading(true);
     setError('');
@@ -234,10 +243,10 @@ const PagoForm = () => {
         customerData: {
           email: formData.email,
           fullName: formData.nombreTitular,
-          phoneNumber: formData.telefono,
+          phoneNumber: formData.telefono.replace(/\D/g, ''),
           phoneNumberPrefix: "+57",
-          legalId: formData.documentoIdentidad, // Asegúrate de tener este campo
-          legalIdType: "CC"  // Tipo de documento
+          legalId: formData.numeroDocumento,
+          legalIdType: formData.tipoDocumento
         },
         shippingAddress: {
           addressLine1: formData.direccionEntrega,
@@ -403,6 +412,43 @@ const PagoForm = () => {
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
                 />
+              </div>
+
+              {/* Campos de documento */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="relative">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <User className="w-4 h-4 inline mr-2" />
+                    Tipo de Documento
+                  </label>
+                  <select
+                    name="tipoDocumento"
+                    value={formData.tipoDocumento}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required
+                  >
+                    <option value="CC">Cédula de Ciudadanía</option>
+                    <option value="CE">Cédula de Extranjería</option>
+                    <option value="PPN">Pasaporte</option>
+                  </select>
+                </div>
+
+                <div className="relative">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <Hash className="w-4 h-4 inline mr-2" />
+                    Número de Documento
+                  </label>
+                  <input
+                    type="text"
+                    name="numeroDocumento"
+                    value={formData.numeroDocumento}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="1234567890"
+                    required
+                  />
+                </div>
               </div>
             </div>
 
