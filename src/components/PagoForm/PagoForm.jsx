@@ -221,36 +221,36 @@ const PagoForm = () => {
     setError('');
   
     try {
-      // Crear el formulario HTML
       const form = document.createElement('form');
       form.method = 'GET';
       form.action = 'https://checkout.wompi.co/p/';
   
-      // Datos básicos
+      // Campos obligatorios
       const fields = {
         'mode': 'redirect',
         'public-key': 'pub_stagtest_g2u0HQd3ZMh05hsSgTS2lUV8t3s4mOt7',
         'currency': 'COP',
         'amount-in-cents': calcularTotal() * 100,
         'reference': `ORDER-${Date.now()}-${Math.random().toString(36).substring(7)}`,
-        'redirect-url': 'https://wompi-store.netlify.app/resumen'
+        'redirect-url': 'https://wompi-store.netlify.app/resumen',
+        'signature': '', // Aquí deberías generar la firma si es necesaria
+  
+        // Datos del cliente
+        'customer-data:email': formData.email,
+        'customer-data:full-name': formData.nombreTitular,
+        'customer-data:phone-number': formData.telefono?.replace(/\D/g, ''),
+        'customer-data:phone-number-prefix': '+57',
+        'customer-data:legal-id': formData.numeroDocumento,
+        'customer-data:legal-id-type': formData.tipoDocumento,
+  
+        // Datos de envío
+        'shipping-address:address-line-1': formData.direccionEntrega,
+        'shipping-address:city': formData.ciudad,
+        'shipping-address:country': 'CO',
+        'shipping-address:phone-number': formData.telefono?.replace(/\D/g, ''),
+        'shipping-address:region': formData.ciudad,
+        'shipping-address:postal-code': formData.codigoPostal
       };
-  
-      // Datos del cliente
-      fields['customer-data:email'] = formData.email;
-      fields['customer-data:full-name'] = formData.nombreTitular;
-      fields['customer-data:phone-number'] = formData.telefono?.replace(/\D/g, '');
-      fields['customer-data:phone-number-prefix'] = '+57';
-      fields['customer-data:legal-id'] = formData.numeroDocumento;
-      fields['customer-data:legal-id-type'] = formData.tipoDocumento;
-  
-      // Datos de envío
-      fields['shipping-address:address-line-1'] = formData.direccionEntrega;
-      fields['shipping-address:city'] = formData.ciudad;
-      fields['shipping-address:country'] = 'CO';
-      fields['shipping-address:phone-number'] = formData.telefono?.replace(/\D/g, '');
-      fields['shipping-address:region'] = formData.ciudad;
-      fields['shipping-address:postal-code'] = formData.codigoPostal;
   
       // Crear campos ocultos
       Object.entries(fields).forEach(([key, value]) => {
