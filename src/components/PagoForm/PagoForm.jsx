@@ -230,8 +230,9 @@ const PagoForm = () => {
         currency: 'COP',
         amountInCents: calcularTotal() * 100,
         reference: `ORDER-${Date.now()}`,
-        publicKey: 'pub_test_X0zDA9xoKdePzhd8a0x9HAez7HgGO9WJ',
+        publicKey: import.meta.env.VITE_WOMPI_PUBLIC_KEY,
         redirectUrl: 'https://wompi-store.netlify.app/resumen',
+        sandboxMode: true,
         
         taxInCents: {
           vat: 1000 * 100,
