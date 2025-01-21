@@ -221,35 +221,38 @@ const PagoForm = () => {
     setError('');
   
     try {
-      const params = new URLSearchParams({
-        'public-key': 'pub_stagtest_g2u0HQd3ZMh05hsSgTS2lUV8t3s4mOt7',
-        'currency': 'COP',
-        'amount-in-cents': calcularTotal() * 100,
-        'reference': `ORDER-${Date.now()}`,
-        'redirect-url': 'https://wompi-store.netlify.app/resumen',
-        
-        // Datos del cliente
-        'customer-data:email': formData.email,
-        'customer-data:full-name': formData.nombreTitular,
-        'customer-data:phone-number': formData.telefono?.replace(/\D/g, ''),
-        'customer-data:phone-number-prefix': '+57',
-        'customer-data:legal-id': formData.numeroDocumento,
-        'customer-data:legal-id-type': formData.tipoDocumento,
-  
-        // Datos de envío
-        'shipping-address:address-line-1': formData.direccionEntrega,
-        'shipping-address:city': formData.ciudad,
-        'shipping-address:country': 'CO',
-        'shipping-address:phone-number': formData.telefono?.replace(/\D/g, ''),
-        'shipping-address:region': formData.ciudad,
-        'shipping-address:postal-code': formData.codigoPostal
-      });
-  
-      // Construir la URL del checkout
-      const checkoutUrl = `https://checkout.wompi.co/p/?${params.toString()}`;
+      // Generar un ID único para la transacción
+      const referenceId = `ORDER-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+      
+      // Construir la URL del checkout directamente
+      const wompiUrl = 'https://checkout.wompi.co/p/';
+      const checkoutUrl = new URL(wompiUrl);
+      
+      // Agregar parámetros base
+      checkoutUrl.searchParams.append('public-key', 'pub_stagtest_g2u0HQd3ZMh05hsSgTS2lUV8t3s4mOt7');
+      checkoutUrl.searchParams.append('currency', 'COP');
+      checkoutUrl.searchParams.append('amount-in-cents', calcularTotal() * 100);
+      checkoutUrl.searchParams.append('reference', referenceId);
+      checkoutUrl.searchParams.append('redirect-url', 'https://wompi-store.netlify.app/resumen');
+      
+      // Agregar datos del cliente
+      checkoutUrl.searchParams.append('customer-data:email', formData.email);
+      checkoutUrl.searchParams.append('customer-data:full-name', formData.nombreTitular);
+      checkoutUrl.searchParams.append('customer-data:phone-number', formData.telefono?.replace(/\D/g, ''));
+      checkoutUrl.searchParams.append('customer-data:phone-number-prefix', '+57');
+      checkoutUrl.searchParams.append('customer-data:legal-id', formData.numeroDocumento);
+      checkoutUrl.searchParams.append('customer-data:legal-id-type', formData.tipoDocumento);
+      
+      // Agregar datos de envío
+      checkoutUrl.searchParams.append('shipping-address:address-line-1', formData.direccionEntrega);
+      checkoutUrl.searchParams.append('shipping-address:city', formData.ciudad);
+      checkoutUrl.searchParams.append('shipping-address:country', 'CO');
+      checkoutUrl.searchParams.append('shipping-address:phone-number', formData.telefono?.replace(/\D/g, ''));
+      checkoutUrl.searchParams.append('shipping-address:region', formData.ciudad);
+      checkoutUrl.searchParams.append('shipping-address:postal-code', formData.codigoPostal);
   
       // Redireccionar al checkout
-      window.location.href = checkoutUrl;
+      window.location.href = checkoutUrl.toString();
   
     } catch (error) {
       console.error('Error al iniciar el pago:', error);
