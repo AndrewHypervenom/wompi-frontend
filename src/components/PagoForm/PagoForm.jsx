@@ -113,10 +113,10 @@ const PagoForm = () => {
     }
   
     if (name === 'cvv') {
-      const cleaned = value.replace(/\D/g, '');
+      const cleaned = value.replace(/\D/g, '').slice(0, 3);
       setFormData({
         ...formData,
-        [name]: cleaned.slice(0, 4)
+        [name]: cleaned
       });
       return;
     }
@@ -221,62 +221,35 @@ const PagoForm = () => {
     setError('');
   
     try {
-      // Crear el formulario para redirección
-      const form = document.createElement('form');
-      form.method = 'GET';
-      form.action = 'https://checkout.wompi.co/p/';
-  
-      // Definir los parámetros base
-      const baseParams = {
+      const params = new URLSearchParams({
         'public-key': 'pub_stagtest_g2u0HQd3ZMh05hsSgTS2lUV8t3s4mOt7',
         'currency': 'COP',
         'amount-in-cents': calcularTotal() * 100,
         'reference': `ORDER-${Date.now()}`,
-        'redirect-url': 'https://wompi-store.netlify.app/resumen'
-      };
-  
-      // Definir datos del cliente
-      const customerData = {
+        'redirect-url': 'https://wompi-store.netlify.app/resumen',
+        
+        // Datos del cliente
         'customer-data:email': formData.email,
         'customer-data:full-name': formData.nombreTitular,
         'customer-data:phone-number': formData.telefono?.replace(/\D/g, ''),
         'customer-data:phone-number-prefix': '+57',
         'customer-data:legal-id': formData.numeroDocumento,
-        'customer-data:legal-id-type': formData.tipoDocumento
-      };
+        'customer-data:legal-id-type': formData.tipoDocumento,
   
-      // Definir datos de envío
-      const shippingData = {
+        // Datos de envío
         'shipping-address:address-line-1': formData.direccionEntrega,
         'shipping-address:city': formData.ciudad,
         'shipping-address:country': 'CO',
         'shipping-address:phone-number': formData.telefono?.replace(/\D/g, ''),
         'shipping-address:region': formData.ciudad,
         'shipping-address:postal-code': formData.codigoPostal
-      };
-  
-      // Combinar todos los parámetros
-      const params = {
-        ...baseParams,
-        ...customerData,
-        ...shippingData
-      };
-  
-      // Agregar los campos al formulario, filtrando valores undefined o null
-      Object.entries(params).forEach(([key, value]) => {
-        if (value) {  // Solo agregar si el valor existe
-          const input = document.createElement('input');
-          input.type = 'hidden';
-          input.name = key;
-          input.value = String(value).trim();  // Convertir a string y remover espacios
-          form.appendChild(input);
-        }
       });
   
-      // Agregar el formulario al documento y enviarlo
-      document.body.appendChild(form);
-      form.submit();
-      document.body.removeChild(form);  // Limpieza después del submit
+      // Construir la URL del checkout
+      const checkoutUrl = `https://checkout.wompi.co/p/?${params.toString()}`;
+  
+      // Redireccionar al checkout
+      window.location.href = checkoutUrl;
   
     } catch (error) {
       console.error('Error al iniciar el pago:', error);
