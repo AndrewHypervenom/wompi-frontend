@@ -226,43 +226,57 @@ const PagoForm = () => {
       form.method = 'GET';
       form.action = 'https://checkout.wompi.co/p/';
   
-      // Configurar los campos necesarios
-      const params = {
+      // Definir los parámetros base
+      const baseParams = {
         'public-key': 'pub_stagtest_g2u0HQd3ZMh05hsSgTS2lUV8t3s4mOt7',
         'currency': 'COP',
         'amount-in-cents': calcularTotal() * 100,
         'reference': `ORDER-${Date.now()}`,
-        'redirect-url': 'https://wompi-store.netlify.app/resumen',
-        
-        // Datos del cliente
+        'redirect-url': 'https://wompi-store.netlify.app/resumen'
+      };
+  
+      // Definir datos del cliente
+      const customerData = {
         'customer-data:email': formData.email,
         'customer-data:full-name': formData.nombreTitular,
-        'customer-data:phone-number': formData.telefono,
+        'customer-data:phone-number': formData.telefono?.replace(/\D/g, ''),
         'customer-data:phone-number-prefix': '+57',
         'customer-data:legal-id': formData.numeroDocumento,
-        'customer-data:legal-id-type': formData.tipoDocumento,
+        'customer-data:legal-id-type': formData.tipoDocumento
+      };
   
-        // Información de envío
+      // Definir datos de envío
+      const shippingData = {
         'shipping-address:address-line-1': formData.direccionEntrega,
         'shipping-address:city': formData.ciudad,
         'shipping-address:country': 'CO',
-        'shipping-address:phone-number': formData.telefono,
+        'shipping-address:phone-number': formData.telefono?.replace(/\D/g, ''),
         'shipping-address:region': formData.ciudad,
         'shipping-address:postal-code': formData.codigoPostal
       };
   
-      // Agregar los campos al formulario
+      // Combinar todos los parámetros
+      const params = {
+        ...baseParams,
+        ...customerData,
+        ...shippingData
+      };
+  
+      // Agregar los campos al formulario, filtrando valores undefined o null
       Object.entries(params).forEach(([key, value]) => {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = key;
-        input.value = value || '';
-        form.appendChild(input);
+        if (value) {  // Solo agregar si el valor existe
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = key;
+          input.value = String(value).trim();  // Convertir a string y remover espacios
+          form.appendChild(input);
+        }
       });
   
       // Agregar el formulario al documento y enviarlo
       document.body.appendChild(form);
       form.submit();
+      document.body.removeChild(form);  // Limpieza después del submit
   
     } catch (error) {
       console.error('Error al iniciar el pago:', error);
