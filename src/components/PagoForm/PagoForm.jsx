@@ -221,61 +221,32 @@ const PagoForm = () => {
     setError('');
   
     try {
-      // Crear el formulario Wompi
+      // Crear el formulario para el redirect a Wompi
       const form = document.createElement('form');
       form.method = 'GET';
       form.action = 'https://checkout.wompi.co/p/';
-      form.target = '_self';
   
-      // Campos obligatorios
+      // Solo los campos mínimos y obligatorios
       const formFields = {
-        // Información básica de pago (OBLIGATORIO)
         'public-key': 'pub_stagtest_g2u0HQd3ZMh05hsSgTS2lUV8t3s4mOt7',
         'currency': 'COP',
         'amount-in-cents': String(calcularTotal() * 100),
-        'reference': `ORDER-${Date.now()}-${Math.random().toString(36).substring(7)}`,
-        
-        // URL de redirección después del pago (OBLIGATORIO)
-        'redirect-url': `${window.location.origin}/resumen`,
-        
-        // Modo de Checkout (OBLIGATORIO)
-        'mode': 'redirect',
-        
-        // Información del cliente
-        'customer-data:email': formData.email,
-        'customer-data:full-name': formData.nombreTitular,
-        'customer-data:phone-number': formData.telefono?.replace(/\D/g, ''),
-        'customer-data:phone-number-prefix': '+57',
-        'customer-data:legal-id': formData.numeroDocumento,
-        'customer-data:legal-id-type': formData.tipoDocumento,
-  
-        // Información de envío
-        'shipping-address:address-line-1': formData.direccionEntrega,
-        'shipping-address:city': formData.ciudad,
-        'shipping-address:country': 'CO',
-        'shipping-address:phone-number': formData.telefono?.replace(/\D/g, ''),
-        'shipping-address:region': formData.ciudad,
-        'shipping-address:postal-code': formData.codigoPostal
+        'reference': `ORDER-${Date.now()}`,
+        'redirect-url': 'https://wompi-store.netlify.app/resumen'
       };
   
       // Agregar campos al formulario
       Object.entries(formFields).forEach(([name, value]) => {
-        if (value) {
-          const input = document.createElement('input');
-          input.type = 'hidden';
-          input.name = name;
-          input.value = value;
-          form.appendChild(input);
-        }
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = value;
+        form.appendChild(input);
       });
   
-      // Para debug
       console.log('Enviando formulario con campos:', formFields);
-  
-      // Agregar formulario al DOM y enviarlo
       document.body.appendChild(form);
       form.submit();
-      document.body.removeChild(form);
   
     } catch (error) {
       console.error('Error al iniciar el pago:', error);
