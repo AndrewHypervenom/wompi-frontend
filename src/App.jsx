@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react'; // Agregamos el import de useEffect
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { store } from './store/store';
@@ -8,7 +8,6 @@ import Resumen from './components/Resumen/Resumen';
 import { initWompi } from './services/wompiService';
 
 function App() {
-
   useEffect(() => {
     const loadWompi = async () => {
       try {
