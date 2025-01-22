@@ -4,21 +4,24 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    proxy: {
-      '/api': {
-        target: 'https://main.d15ft221g340bk.amplifyapp.com',
-        changeOrigin: true,
-        secure: false,
-      }
+    host: true,
+    port: 5173,
+    headers: {
+      'Content-Security-Policy': `
+        default-src 'self' https://checkout.wompi.co https://api.wompi.co;
+        script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.wompi.co;
+        style-src 'self' 'unsafe-inline';
+        img-src 'self' data: /api/placeholder/;
+        connect-src 'self' https://checkout.wompi.co https://api.wompi.co https://api-sandbox.wompi.co https://wompi-backend-k7g6.onrender.com;
+        frame-src 'self' https://checkout.wompi.co;
+      `.replace(/\n/g, '')
     }
   },
   build: {
     outDir: 'dist',
     sourcemap: false,
     rollupOptions: {
-      output: {
-        manualChunks: undefined
-      }
+      external: ['https://checkout.wompi.co/widget.js']
     }
   }
 })
