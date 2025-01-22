@@ -228,11 +228,16 @@ const PagoForm = () => {
   
       // Configurar campos del formulario
       const formFields = {
-        'public-key': import.meta.env.VITE_WOMPI_PUBLIC_KEY || 'pub_stagtest_g2u0HQd3ZMh05hsSgTS2lUV8t3s4mOt7',
+        // Campos obligatorios de Wompi
+        'public-key': 'pub_stagtest_g2u0HQd3ZMh05hsSgTS2lUV8t3s4mOt7',
         'currency': 'COP',
         'amount-in-cents': String(calcularTotal() * 100),
         'reference': `ORDER-${Date.now()}-${Math.random().toString(36).substring(7)}`,
-        'redirect-url': window.location.origin + '/resumen',
+        'redirect-url': `${window.location.origin}/resumen`,
+  
+        // Modo de checkout y ambiente
+        'mode': 'redirect',
+        'environment': 'test',
   
         // Información del cliente
         'customer-data:email': formData.email,
@@ -248,7 +253,10 @@ const PagoForm = () => {
         'shipping-address:country': 'CO',
         'shipping-address:phone-number': formData.telefono?.replace(/\D/g, ''),
         'shipping-address:region': formData.ciudad,
-        'shipping-address:postal-code': formData.codigoPostal
+        'shipping-address:postal-code': formData.codigoPostal,
+  
+        // Configuración de comercio
+        'merchant-name': 'Test Shop'
       };
   
       // Agregar campos al formulario
@@ -264,8 +272,8 @@ const PagoForm = () => {
   
       // Agregar el formulario al DOM y enviarlo
       document.body.appendChild(form);
+      console.log('Enviando formulario con campos:', formFields);
       form.submit();
-      document.body.removeChild(form);
   
     } catch (error) {
       console.error('Error al iniciar el pago:', error);

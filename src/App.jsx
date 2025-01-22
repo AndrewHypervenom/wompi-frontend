@@ -5,8 +5,23 @@ import { store } from './store/store';
 import Producto from './components/Producto/Producto';
 import PagoForm from './components/PagoForm/PagoForm';
 import Resumen from './components/Resumen/Resumen';
+import { initWompi } from './services/wompiService';
 
 function App() {
+
+  useEffect(() => {
+    const loadWompi = async () => {
+      try {
+        await initWompi();
+        console.log('Wompi inicializado correctamente');
+      } catch (error) {
+        console.error('Error al inicializar Wompi:', error);
+      }
+    };
+
+    loadWompi();
+  }, []);
+
   return (
     <Provider store={store}>
       <Router>
