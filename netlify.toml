@@ -1,0 +1,20 @@
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    Content-Security-Policy = """
+      default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;
+      connect-src * 'unsafe-inline';
+      font-src * data:;
+      frame-src *;
+      img-src * data: blob:;
+      media-src * blob:;
+      script-src * 'unsafe-inline' 'unsafe-eval';
+      style-src * 'unsafe-inline';
+    """
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

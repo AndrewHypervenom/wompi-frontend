@@ -221,34 +221,51 @@ const PagoForm = () => {
     setError('');
   
     try {
-      const formContainer = document.createElement('div');
-      formContainer.innerHTML = `
-        <form action="https://checkout.wompi.co/p/" method="GET">
-          <input type="hidden" name="public-key" value="pub_stagtest_g2u0HQd3ZMh05hsSgTS2lUV8t3s4mOt7" />
-          <input type="hidden" name="currency" value="COP" />
-          <input type="hidden" name="amount-in-cents" value="${calcularTotal() * 100}" />
-          <input type="hidden" name="reference" value="ORDER-${Date.now()}" />
-          <input type="hidden" name="redirect-url" value="https://wompi-store.netlify.app/resumen" />
-          
-          <input type="hidden" name="customer-data:email" value="${formData.email}" />
-          <input type="hidden" name="customer-data:full-name" value="${formData.nombreTitular}" />
-          <input type="hidden" name="customer-data:phone-number" value="${formData.telefono}" />
-          <input type="hidden" name="customer-data:phone-number-prefix" value="+57" />
-          <input type="hidden" name="customer-data:legal-id" value="${formData.numeroDocumento}" />
-          <input type="hidden" name="customer-data:legal-id-type" value="${formData.tipoDocumento}" />
+      // Crear el formulario
+      const form = document.createElement('form');
+      form.method = 'GET';
+      form.action = 'https://checkout.wompi.co/p/';
   
-          <input type="hidden" name="shipping-address:address-line-1" value="${formData.direccionEntrega}" />
-          <input type="hidden" name="shipping-address:city" value="${formData.ciudad}" />
-          <input type="hidden" name="shipping-address:country" value="CO" />
-          <input type="hidden" name="shipping-address:phone-number" value="${formData.telefono}" />
-          <input type="hidden" name="shipping-address:region" value="${formData.ciudad}" />
-          <input type="hidden" name="shipping-address:postal-code" value="${formData.codigoPostal}" />
-        </form>
-      `;
+      // Configurar campos del formulario
+      const formFields = {
+        'public-key': import.meta.env.VITE_WOMPI_PUBLIC_KEY || 'pub_stagtest_g2u0HQd3ZMh05hsSgTS2lUV8t3s4mOt7',
+        'currency': 'COP',
+        'amount-in-cents': String(calcularTotal() * 100),
+        'reference': `ORDER-${Date.now()}-${Math.random().toString(36).substring(7)}`,
+        'redirect-url': window.location.origin + '/resumen',
   
-      const form = formContainer.querySelector('form');
+        // Información del cliente
+        'customer-data:email': formData.email,
+        'customer-data:full-name': formData.nombreTitular,
+        'customer-data:phone-number': formData.telefono?.replace(/\D/g, ''),
+        'customer-data:phone-number-prefix': '+57',
+        'customer-data:legal-id': formData.numeroDocumento,
+        'customer-data:legal-id-type': formData.tipoDocumento,
+  
+        // Información de envío
+        'shipping-address:address-line-1': formData.direccionEntrega,
+        'shipping-address:city': formData.ciudad,
+        'shipping-address:country': 'CO',
+        'shipping-address:phone-number': formData.telefono?.replace(/\D/g, ''),
+        'shipping-address:region': formData.ciudad,
+        'shipping-address:postal-code': formData.codigoPostal
+      };
+  
+      // Agregar campos al formulario
+      Object.entries(formFields).forEach(([name, value]) => {
+        if (value) {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = name;
+          input.value = value;
+          form.appendChild(input);
+        }
+      });
+  
+      // Agregar el formulario al DOM y enviarlo
       document.body.appendChild(form);
       form.submit();
+      document.body.removeChild(form);
   
     } catch (error) {
       console.error('Error al iniciar el pago:', error);
