@@ -221,23 +221,38 @@ const PagoForm = () => {
     setError('');
   
     try {
+      // Primero crear la transacción en nuestro backend
+      const transactionResponse = await createTransaction({
+        productoId: producto._id,
+        monto: calcularTotal(),
+        telefono: formData.telefono,
+        direccionEntrega: formData.direccionEntrega,
+        ciudad: formData.ciudad,
+        codigoPostal: formData.codigoPostal
+      });
+  
+      // Crear el formulario de Wompi
       const form = document.createElement('form');
       form.method = 'GET';
       form.action = 'https://checkout.wompi.co/p/';
-      form.target = '_self';
   
+      // Campos mínimos requeridos para el checkout
       const formFields = {
         'public-key': 'pub_stagtest_g2u0HQd3ZMh05hsSgTS2lUV8t3s4mOt7',
         'currency': 'COP',
         'amount-in-cents': String(calcularTotal() * 100),
-        'reference': `ORDER-${Date.now()}-${Math.random().toString(36).substring(7)}`,
+        'reference': transactionResponse.data.id, // Usar el ID de la transacción como referencia
         'redirect-url': `${window.location.origin}/resumen`,
+  
+        // Información del cliente
         'customer-data:email': formData.email,
         'customer-data:full-name': formData.nombreTitular,
         'customer-data:phone-number': formData.telefono?.replace(/\D/g, ''),
         'customer-data:phone-number-prefix': '+57',
         'customer-data:legal-id': formData.numeroDocumento,
         'customer-data:legal-id-type': formData.tipoDocumento,
+  
+        // Información de envío
         'shipping-address:address-line-1': formData.direccionEntrega,
         'shipping-address:city': formData.ciudad,
         'shipping-address:country': 'CO',
@@ -246,6 +261,7 @@ const PagoForm = () => {
         'shipping-address:postal-code': formData.codigoPostal
       };
   
+      // Agregar campos al formulario
       Object.entries(formFields).forEach(([name, value]) => {
         if (value) {
           const input = document.createElement('input');
@@ -256,9 +272,9 @@ const PagoForm = () => {
         }
       });
   
+      // Agregar el formulario al DOM y enviarlo
       document.body.appendChild(form);
       form.submit();
-      document.body.removeChild(form);
   
     } catch (error) {
       console.error('Error al iniciar el pago:', error);
