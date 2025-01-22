@@ -3,14 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="Content-Security-Policy" content="
-      default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; 
-      script-src * 'unsafe-inline' 'unsafe-eval'; 
-      connect-src * 'unsafe-inline'; 
-      img-src * data: blob: 'unsafe-inline'; 
-      frame-src *; 
-      style-src * 'unsafe-inline';">
     <title>Tienda Wompi</title>
+    <script>
+      window.wompiConfig = {
+        publicKey: 'pub_stagtest_g2u0HQd3ZMh05hsSgTS2lUV8t3s4mOt7',
+        environment: 'test'
+      };
+    </script>
   </head>
   <body>
     <div id="root"></div>
