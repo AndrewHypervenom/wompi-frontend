@@ -221,29 +221,26 @@ const PagoForm = () => {
     setError('');
   
     try {
-      // Primero crear la transacción en nuestro backend
-      const transactionResponse = await createTransaction({
-        productoId: producto._id,
-        monto: calcularTotal(),
-        telefono: formData.telefono,
-        direccionEntrega: formData.direccionEntrega,
-        ciudad: formData.ciudad,
-        codigoPostal: formData.codigoPostal
-      });
-  
-      // Crear el formulario de Wompi
+      // Crear el formulario Wompi
       const form = document.createElement('form');
       form.method = 'GET';
       form.action = 'https://checkout.wompi.co/p/';
+      form.target = '_self';
   
-      // Campos mínimos requeridos para el checkout
+      // Campos obligatorios
       const formFields = {
+        // Información básica de pago (OBLIGATORIO)
         'public-key': 'pub_stagtest_g2u0HQd3ZMh05hsSgTS2lUV8t3s4mOt7',
         'currency': 'COP',
         'amount-in-cents': String(calcularTotal() * 100),
-        'reference': transactionResponse.data.id, // Usar el ID de la transacción como referencia
+        'reference': `ORDER-${Date.now()}-${Math.random().toString(36).substring(7)}`,
+        
+        // URL de redirección después del pago (OBLIGATORIO)
         'redirect-url': `${window.location.origin}/resumen`,
-  
+        
+        // Modo de Checkout (OBLIGATORIO)
+        'mode': 'redirect',
+        
         // Información del cliente
         'customer-data:email': formData.email,
         'customer-data:full-name': formData.nombreTitular,
@@ -272,9 +269,13 @@ const PagoForm = () => {
         }
       });
   
-      // Agregar el formulario al DOM y enviarlo
+      // Para debug
+      console.log('Enviando formulario con campos:', formFields);
+  
+      // Agregar formulario al DOM y enviarlo
       document.body.appendChild(form);
       form.submit();
+      document.body.removeChild(form);
   
     } catch (error) {
       console.error('Error al iniciar el pago:', error);
